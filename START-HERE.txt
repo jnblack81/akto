@@ -1,0 +1,85 @@
+========================================
+CRTP LAB FOREST TRUST SETUP
+START HERE
+========================================
+
+YOU ARE ON: dcorp-dc
+
+DO THIS IN ORDER:
+
+========================================
+STEP 1: ON DCORP-DC (or MCORP-DC)
+========================================
+
+1. Open the file: /home/user/akto/DEPLOY-CRTP-LAB-NOW.ps1
+
+2. Copy THE ENTIRE CONTENTS of that file
+
+3. On dcorp-dc:
+   - Open PowerShell ISE (as Administrator)
+   - Paste the entire script
+   - Save as: C:\Scripts\DEPLOY-CRTP-LAB-NOW.ps1
+   - Run it: Press F5 or click Run
+
+========================================
+STEP 2: ON ECORP-DC
+========================================
+
+1. Log into ecorp-dc (eurocorp\Administrator / Psychi@Lab2024!)
+
+2. Open PowerShell ISE (as Administrator)
+
+3. Copy the SAME script content
+
+4. Paste into ISE
+
+5. Save as: C:\Scripts\DEPLOY-CRTP-LAB-NOW.ps1
+
+6. Run it: Press F5 or click Run
+
+========================================
+DONE!
+========================================
+
+The script does everything automatically:
+- Creates DNS forwarders
+- Tests connectivity
+- Removes broken trusts
+- Creates new forest trust
+- Verifies it works
+
+========================================
+VERIFY IT WORKED
+========================================
+
+On any DC, run this in PowerShell:
+
+Get-ADTrust -Filter * | Format-Table Name, Direction, TrustType
+
+You should see:
+- eurocorp.local (or moneycorp.local)
+- Direction: Bidirectional
+- Type: Forest
+
+========================================
+IF YOU JUST WANT THE MANUAL COMMANDS
+========================================
+
+ON MCORP-DC (moneycorp.local):
+
+Add-DnsServerConditionalForwarderZone -Name 'eurocorp.local' -MasterServers 192.168.96.11
+$p = ConvertTo-SecureString "Psychi@Lab2024!" -AsPlainText -Force
+Remove-ADTrust -Identity "eurocorp.local" -Confirm:$false -ErrorAction SilentlyContinue
+Add-ADTrust -Name "eurocorp.local" -TrustType Forest -TrustDirection Bidirectional -ForestTransitive $true -TrustPassword $p -Confirm:$false
+
+
+ON ECORP-DC (eurocorp.local):
+
+Add-DnsServerConditionalForwarderZone -Name 'moneycorp.local' -MasterServers 192.168.96.10
+$p = ConvertTo-SecureString "Psychi@Lab2024!" -AsPlainText -Force
+Remove-ADTrust -Identity "moneycorp.local" -Confirm:$false -ErrorAction SilentlyContinue
+Add-ADTrust -Name "moneycorp.local" -TrustType Forest -TrustDirection Bidirectional -ForestTransitive $true -TrustPassword $p -Confirm:$false
+
+========================================
+
+THAT'S IT.

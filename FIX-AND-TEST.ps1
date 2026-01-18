@@ -22,15 +22,22 @@ Write-Host ""
 # Expected IPs
 $expectedIPs = @{
     "MCORP-DC" = "192.168.96.10"
-    "ECORP-DC" = "192.168.96.11"
-    "DCORP-DC" = "192.168.96.12"
+    "ECORP-DC" = "192.168.96.100"
+    "DCORP-DC" = "192.168.96.20"
+    "DCORP-ADMINSRV" = "192.168.96.21"
+    "DCORP-APPSRV" = "192.168.96.22"
+    "DCORP-CI" = "192.168.96.23"
+    "DCORP-MGMT" = "192.168.96.24"
+    "DCORP-MSSQL" = "192.168.96.25"
+    "DCORP-SQL1" = "192.168.96.26"
+    "DCORP-STDADMIN" = "192.168.96.50"
 }
 
 $expectedIP = $expectedIPs[$hostname]
 
 if (-not $expectedIP) {
     Write-Host "Unknown machine: $hostname" -ForegroundColor Red
-    Write-Host "Expected: MCORP-DC, ECORP-DC, or DCORP-DC" -ForegroundColor Red
+    Write-Host "Expected: MCORP-DC, ECORP-DC, DCORP-DC, or DCORP-* member servers" -ForegroundColor Red
     exit 1
 }
 
@@ -66,13 +73,17 @@ if ($currentIP -ne $expectedIP) {
     Write-Host "Configuring DNS..." -ForegroundColor Yellow
     switch ($hostname) {
         "MCORP-DC" {
-            Set-DnsClientServerAddress -InterfaceAlias $adapter.Name -ServerAddresses "192.168.96.10","127.0.0.1"
+            Set-DnsClientServerAddress -InterfaceAlias $adapter.Name -ServerAddresses "127.0.0.1","192.168.96.10"
         }
         "ECORP-DC" {
-            Set-DnsClientServerAddress -InterfaceAlias $adapter.Name -ServerAddresses "192.168.96.11","192.168.96.10"
+            Set-DnsClientServerAddress -InterfaceAlias $adapter.Name -ServerAddresses "127.0.0.1","192.168.96.100"
         }
         "DCORP-DC" {
-            Set-DnsClientServerAddress -InterfaceAlias $adapter.Name -ServerAddresses "192.168.96.12","192.168.96.10"
+            Set-DnsClientServerAddress -InterfaceAlias $adapter.Name -ServerAddresses "127.0.0.1","192.168.96.20","192.168.96.10"
+        }
+        default {
+            # All member servers point to dcorp-dc then mcorp-dc
+            Set-DnsClientServerAddress -InterfaceAlias $adapter.Name -ServerAddresses "192.168.96.20","192.168.96.10"
         }
     }
 

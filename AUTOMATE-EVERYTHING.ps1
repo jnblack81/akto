@@ -18,8 +18,15 @@ Write-Host ""
 $VBoxManage = "C:\Program Files\Oracle\VirtualBox\VBoxManage.exe"
 $VMs = @(
     @{Name="mcorp-dc"; User="moneycorp\Administrator"; Pass="Psychi@Lab2024!"; ExpectedIP="192.168.96.10"},
-    @{Name="ecorp-dc"; User="eurocorp\Administrator"; Pass="Psychi@Lab2024!"; ExpectedIP="192.168.96.11"},
-    @{Name="dcorp-dc"; User="Administrator@dcorp.moneycorp.local"; Pass="Psychi@Lab2024!"; ExpectedIP="192.168.96.12"; AltUsers=@("dcorp\Administrator","moneycorp\Administrator")}
+    @{Name="ecorp-dc"; User="eurocorp\Administrator"; Pass="Psychi@Lab2024!"; ExpectedIP="192.168.96.100"},
+    @{Name="dcorp-dc"; User="Administrator@dcorp.moneycorp.local"; Pass="Psychi@Lab2024!"; ExpectedIP="192.168.96.20"; AltUsers=@("dcorp\Administrator","dollarcorp\Administrator")},
+    @{Name="dcorp-adminsrv"; User="dollarcorp\Administrator"; Pass="Psychi@Lab2024!"; ExpectedIP="192.168.96.21"},
+    @{Name="dcorp-appsrv"; User="dollarcorp\Administrator"; Pass="Psychi@Lab2024!"; ExpectedIP="192.168.96.22"},
+    @{Name="dcorp-ci"; User="dollarcorp\Administrator"; Pass="Psychi@Lab2024!"; ExpectedIP="192.168.96.23"},
+    @{Name="dcorp-mgmt"; User="dollarcorp\Administrator"; Pass="Psychi@Lab2024!"; ExpectedIP="192.168.96.24"},
+    @{Name="dcorp-mssql"; User="dollarcorp\Administrator"; Pass="Psychi@Lab2024!"; ExpectedIP="192.168.96.25"},
+    @{Name="dcorp-sql1"; User="dollarcorp\Administrator"; Pass="Psychi@Lab2024!"; ExpectedIP="192.168.96.26"},
+    @{Name="dcorp-stdadmin"; User="dollarcorp\student"; Pass="Password123!"; ExpectedIP="192.168.96.50"}
 )
 
 # Check VBoxManage exists
@@ -135,9 +142,16 @@ Write-Host 'IP set to $($vm.ExpectedIP)'
     Write-Host "[6/6] Configuring DNS..." -ForegroundColor Cyan
 
     $dnsServers = switch ($vm.Name) {
-        "mcorp-dc" { "192.168.96.10,127.0.0.1" }
-        "ecorp-dc" { "192.168.96.11,192.168.96.10" }
-        "dcorp-dc" { "192.168.96.12,192.168.96.10" }
+        "mcorp-dc" { "127.0.0.1,192.168.96.10" }
+        "ecorp-dc" { "127.0.0.1,192.168.96.100" }
+        "dcorp-dc" { "127.0.0.1,192.168.96.20,192.168.96.10" }
+        "dcorp-adminsrv" { "192.168.96.20,192.168.96.10" }
+        "dcorp-appsrv" { "192.168.96.20,192.168.96.10" }
+        "dcorp-ci" { "192.168.96.20,192.168.96.10" }
+        "dcorp-mgmt" { "192.168.96.20,192.168.96.10" }
+        "dcorp-mssql" { "192.168.96.20,192.168.96.10" }
+        "dcorp-sql1" { "192.168.96.20,192.168.96.10" }
+        "dcorp-stdadmin" { "192.168.96.20,192.168.96.10" }
     }
 
     $setDNSScript = @"

@@ -19,7 +19,7 @@ $VBoxManage = "C:\Program Files\Oracle\VirtualBox\VBoxManage.exe"
 $VMs = @(
     @{Name="mcorp-dc"; User="moneycorp\Administrator"; Pass="Psychi@Lab2024!"; ExpectedIP="192.168.96.10"},
     @{Name="ecorp-dc"; User="eurocorp\Administrator"; Pass="Psychi@Lab2024!"; ExpectedIP="192.168.96.11"},
-    @{Name="dcorp-dc"; User="dcorp\Administrator"; Pass="Psychi@Lab2024!"; ExpectedIP="192.168.96.12"}
+    @{Name="dcorp-dc"; User="Administrator@dcorp.moneycorp.local"; Pass="Psychi@Lab2024!"; ExpectedIP="192.168.96.12"; AltUsers=@("dcorp\Administrator","moneycorp\Administrator")}
 )
 
 # Check VBoxManage exists
@@ -31,6 +31,9 @@ if (-not (Test-Path $VBoxManage)) {
 
 Write-Host "[INFO] Found VBoxManage" -ForegroundColor Green
 Write-Host ""
+
+# Track overall success/failure
+$globalErrors = @()
 
 # Process each VM
 foreach ($vm in $VMs) {
@@ -55,8 +58,39 @@ foreach ($vm in $VMs) {
     Write-Host "[2/5] Waiting for VM to be ready..." -ForegroundColor Cyan
     Start-Sleep -Seconds 10
 
+    # Try to find working credentials for this VM
+    Write-Host "[3/5] Testing credentials..." -ForegroundColor Cyan
+    $workingUser = $null
+    $workingPass = $vm.Pass
+
+    $usersToTry = @($vm.User)
+    if ($vm.AltUsers) {
+        $usersToTry += $vm.AltUsers
+    }
+
+    foreach ($testUser in $usersToTry) {
+        Write-Host "  Trying: $testUser" -ForegroundColor Gray
+        try {
+            $testResult = & $VBoxManage guestcontrol $vm.Name run --exe "C:\Windows\System32\cmd.exe" --username $testUser --password $workingPass --wait-stdout -- /c "echo OK" 2>&1
+            if ($testResult -match "OK") {
+                $workingUser = $testUser
+                Write-Host "  SUCCESS: $testUser works!" -ForegroundColor Green
+                break
+            }
+        } catch {
+            Write-Host "  Failed: $testUser" -ForegroundColor DarkGray
+        }
+    }
+
+    if (-not $workingUser) {
+        Write-Host "  ERROR: No valid credentials found for $($vm.Name)" -ForegroundColor Red
+        $globalErrors += "$($vm.Name): Authentication failed with all credential attempts"
+        Write-Host ""
+        continue
+    }
+
     # Get current IP
-    Write-Host "[3/5] Checking current IP address..." -ForegroundColor Cyan
+    Write-Host "[4/5] Checking current IP address..." -ForegroundColor Cyan
 
     $getIPScript = @"
 `$adapter = Get-NetAdapter | Where-Object {`$_.Status -eq 'Up'} | Select-Object -First 1
@@ -65,7 +99,7 @@ Write-Host `$ip
 "@
 
     try {
-        $currentIP = & $VBoxManage guestcontrol $vm.Name run --exe "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" --username $vm.User --password $vm.Pass --wait-stdout -- -Command $getIPScript 2>&1 | Select-String "192.168"
+        $currentIP = & $VBoxManage guestcontrol $vm.Name run --exe "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" --username $workingUser --password $workingPass --wait-stdout -- -Command $getIPScript 2>&1 | Select-String "192.168"
 
         if ($currentIP -match "192.168.(\d+)\.(\d+)") {
             Write-Host "  Current IP: $currentIP" -ForegroundColor Yellow
@@ -74,10 +108,11 @@ Write-Host `$ip
         }
     } catch {
         Write-Host "  Error getting IP: $_" -ForegroundColor Red
+        $globalErrors += "$($vm.Name): Failed to get IP address"
     }
 
     # Fix IP if needed
-    Write-Host "[4/5] Setting correct IP address..." -ForegroundColor Cyan
+    Write-Host "[5/5] Setting correct IP address..." -ForegroundColor Cyan
 
     $fixIPScript = @"
 `$adapter = Get-NetAdapter | Where-Object {`$_.Status -eq 'Up'} | Select-Object -First 1
@@ -89,14 +124,15 @@ Write-Host 'IP set to $($vm.ExpectedIP)'
 "@
 
     try {
-        & $VBoxManage guestcontrol $vm.Name run --exe "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" --username $vm.User --password $vm.Pass --wait-stdout -- -Command $fixIPScript
+        & $VBoxManage guestcontrol $vm.Name run --exe "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" --username $workingUser --password $workingPass --wait-stdout -- -Command $fixIPScript
         Write-Host "  IP address configured" -ForegroundColor Green
     } catch {
         Write-Host "  Error setting IP: $_" -ForegroundColor Red
+        $globalErrors += "$($vm.Name): Failed to set IP address"
     }
 
     # Set DNS
-    Write-Host "[5/5] Configuring DNS..." -ForegroundColor Cyan
+    Write-Host "[6/6] Configuring DNS..." -ForegroundColor Cyan
 
     $dnsServers = switch ($vm.Name) {
         "mcorp-dc" { "192.168.96.10,127.0.0.1" }
@@ -111,10 +147,11 @@ Write-Host 'DNS configured'
 "@
 
     try {
-        & $VBoxManage guestcontrol $vm.Name run --exe "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" --username $vm.User --password $vm.Pass --wait-stdout -- -Command $setDNSScript
+        & $VBoxManage guestcontrol $vm.Name run --exe "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" --username $workingUser --password $workingPass --wait-stdout -- -Command $setDNSScript
         Write-Host "  DNS configured" -ForegroundColor Green
     } catch {
         Write-Host "  Error setting DNS: $_" -ForegroundColor Red
+        $globalErrors += "$($vm.Name): Failed to set DNS"
     }
 
     Write-Host ""
@@ -165,19 +202,49 @@ if (`$failed -eq 0) {
 
 foreach ($vm in $VMs) {
     Write-Host "Testing $($vm.Name)..." -ForegroundColor Cyan
+
+    # Find working credentials for this VM
+    $workingUser = $vm.User
+    if ($vm.AltUsers) {
+        foreach ($testUser in (@($vm.User) + $vm.AltUsers)) {
+            try {
+                $testResult = & $VBoxManage guestcontrol $vm.Name run --exe "C:\Windows\System32\cmd.exe" --username $testUser --password $vm.Pass --wait-stdout -- /c "echo OK" 2>&1
+                if ($testResult -match "OK") {
+                    $workingUser = $testUser
+                    break
+                }
+            } catch { }
+        }
+    }
+
     try {
-        & $VBoxManage guestcontrol $vm.Name run --exe "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" --username $vm.User --password $vm.Pass --wait-stdout -- -Command $testScript
+        & $VBoxManage guestcontrol $vm.Name run --exe "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" --username $workingUser --password $vm.Pass --wait-stdout -- -Command $testScript
     } catch {
         Write-Host "  Error running tests: $_" -ForegroundColor Red
+        $globalErrors += "$($vm.Name): Failed to run verification tests"
     }
     Write-Host ""
 }
 
 Write-Host ""
-Write-Host "========================================" -ForegroundColor Green
-Write-Host "AUTOMATION COMPLETE!" -ForegroundColor Green
-Write-Host "========================================" -ForegroundColor Green
+Write-Host "========================================" -ForegroundColor Cyan
+Write-Host "FINAL RESULTS" -ForegroundColor Cyan
+Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "All VMs have been configured and tested." -ForegroundColor Green
-Write-Host "Your CRTP lab is ready!" -ForegroundColor Green
+
+if ($globalErrors.Count -eq 0) {
+    Write-Host "SUCCESS! All VMs configured without errors." -ForegroundColor Green
+    Write-Host "Your CRTP lab is ready!" -ForegroundColor Green
+    exit 0
+} else {
+    Write-Host "ERRORS OCCURRED:" -ForegroundColor Red
+    Write-Host ""
+    foreach ($error in $globalErrors) {
+        Write-Host "  - $error" -ForegroundColor Red
+    }
+    Write-Host ""
+    Write-Host "Some VMs may not be fully configured." -ForegroundColor Yellow
+    Write-Host "Check the errors above and run the script again." -ForegroundColor Yellow
+    exit 1
+}
 Write-Host ""

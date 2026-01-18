@@ -6,12 +6,22 @@ Scripts to configure the Certified Red Team Professional (CRTP) lab environment 
 
 ## Files in This Directory
 
-### For CRTP Lab:
-- **FIX-AND-TEST.ps1** - THE ONLY SCRIPT YOU NEED
+### COMPLETE AUTOMATION (Recommended):
+- **CLICK-HERE-TO-START.bat** - Double-click this to automate EVERYTHING
+  - Switches to correct git branch
+  - Runs automation on all 3 VMs from Windows host
+  - Zero manual work required
+
+- **AUTOMATE-EVERYTHING.ps1** - Complete automation script
+  - Uses VBoxManage to configure all VMs remotely
+  - Run once on Windows host, configures all 3 DCs
+
+### MANUAL METHOD (If you prefer):
+- **FIX-AND-TEST.ps1** - Run manually on each DC
   - Auto-detects which DC it's running on
   - Fixes IP addresses if wrong
   - Tests everything
-  - Run on all 3 DCs (mcorp-dc, ecorp-dc, dcorp-dc)
+  - Must run on all 3 DCs (mcorp-dc, ecorp-dc, dcorp-dc)
 
 ### For GOAD Lab (Different Project):
 - **Install-GOAD.ps1** - Installs Game of Active Directory lab
@@ -32,7 +42,32 @@ eurocorp.local (192.168.96.11)
 Forest Trust: moneycorp.local ↔ eurocorp.local (Bidirectional)
 ```
 
-### How to Use:
+### OPTION 1: COMPLETE AUTOMATION (Easiest)
+
+1. **On Windows Host, run ONE command:**
+   ```powershell
+   cd D:\Tooling\akto
+   git checkout claude/powershell-game-ad-installer-sbYrr
+   ```
+
+2. **Double-click this file:**
+   ```
+   CLICK-HERE-TO-START.bat
+   ```
+
+   **OR run in PowerShell:**
+   ```powershell
+   .\AUTOMATE-EVERYTHING.ps1
+   ```
+
+That's it! The script will automatically:
+- Start all VMs if needed
+- Fix all IP addresses
+- Configure DNS on all DCs
+- Run verification tests
+- Give you a complete status report
+
+### OPTION 2: Manual Method
 
 1. **On Windows Host:**
    ```powershell
@@ -95,11 +130,20 @@ ALL TESTS PASSED - [DC-NAME] IS READY
 
 ## Troubleshooting
 
-### Script not found
-Make sure you're on the correct branch:
+### Script not found / File not recognized
+
+**The problem:** You're on the wrong git branch (probably master)
+
+**The fix - run this ONCE:**
 ```powershell
+cd D:\Tooling\akto
 git checkout claude/powershell-game-ad-installer-sbYrr
 git pull
+```
+
+Then double-click **CLICK-HERE-TO-START.bat** or run:
+```powershell
+.\AUTOMATE-EVERYTHING.ps1
 ```
 
 ### Cannot access \\Vboxsvr\d_drive
@@ -120,7 +164,10 @@ Removed 13 old/broken/duplicate scripts:
 - Broken Python automation
 - Outdated documentation
 
-**Only FIX-AND-TEST.ps1 remains - it's the only one that works.**
+**Current working scripts:**
+- AUTOMATE-EVERYTHING.ps1 - Complete automation via VBoxManage
+- FIX-AND-TEST.ps1 - Manual method (run on each DC)
+- CLICK-HERE-TO-START.bat - Launcher that handles git checkout and runs automation
 
 ---
 

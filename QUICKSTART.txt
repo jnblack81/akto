@@ -1,0 +1,32 @@
+====================================================================
+CRTP LAB - COMPLETE AUTOMATION
+====================================================================
+
+IF YOU'RE SEEING "AUTOMATE-EVERYTHING.ps1 NOT FOUND" ERROR:
+
+The problem: You're on the wrong git branch.
+
+The fix: Run this ONCE in PowerShell:
+
+    cd D:\Tooling\akto
+    git checkout claude/powershell-game-ad-installer-sbYrr
+    git pull
+
+Then run:
+
+    .\AUTOMATE-EVERYTHING.ps1
+
+OR double-click:
+
+    CLICK-HERE-TO-START.bat
+
+====================================================================
+
+That's it! The script will automatically configure all 3 VMs:
+  - mcorp-dc (192.168.96.10)
+  - ecorp-dc (192.168.96.11)
+  - dcorp-dc (192.168.96.12)
+
+No manual work required. Just run it once and it does everything.
+
+====================================================================

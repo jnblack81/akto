@@ -107,6 +107,82 @@ if ($currentIP -ne $expectedIP) {
     Write-Host ""
 }
 
+# Configure DNS forwarders (critical for cross-forest queries)
+if ($hostname -eq "MCORP-DC") {
+    Write-Host "Configuring DNS forwarders for mcorp-dc..." -ForegroundColor Yellow
+
+    # Check if eurocorp.local forwarder exists
+    $existingForwarder = Get-DnsServerZone -Name "eurocorp.local" -ErrorAction SilentlyContinue
+
+    if ($existingForwarder) {
+        # Check if it has the correct IP
+        $masterServers = $existingForwarder.MasterServers
+        if ($masterServers -notcontains "192.168.96.100") {
+            Write-Host "  Fixing eurocorp.local forwarder (wrong IP: $masterServers)" -ForegroundColor Yellow
+            Remove-DnsServerZone -Name "eurocorp.local" -Force -ErrorAction SilentlyContinue
+            Add-DnsServerConditionalForwarderZone -Name "eurocorp.local" -MasterServers 192.168.96.100
+            Write-Host "  eurocorp.local forwarder configured to 192.168.96.100" -ForegroundColor Green
+        } else {
+            Write-Host "  eurocorp.local forwarder already correct" -ForegroundColor Green
+        }
+    } else {
+        Write-Host "  Adding eurocorp.local forwarder to 192.168.96.100" -ForegroundColor Yellow
+        Add-DnsServerConditionalForwarderZone -Name "eurocorp.local" -MasterServers 192.168.96.100
+        Write-Host "  eurocorp.local forwarder configured" -ForegroundColor Green
+    }
+    Write-Host ""
+}
+
+if ($hostname -eq "ECORP-DC") {
+    Write-Host "Configuring DNS forwarders for ecorp-dc..." -ForegroundColor Yellow
+
+    # Check if moneycorp.local forwarder exists
+    $existingForwarder = Get-DnsServerZone -Name "moneycorp.local" -ErrorAction SilentlyContinue
+
+    if ($existingForwarder -and $existingForwarder.ZoneType -eq "Forwarder") {
+        # Check if it has the correct IP
+        $masterServers = $existingForwarder.MasterServers
+        if ($masterServers -notcontains "192.168.96.10") {
+            Write-Host "  Fixing moneycorp.local forwarder (wrong IP: $masterServers)" -ForegroundColor Yellow
+            Remove-DnsServerZone -Name "moneycorp.local" -Force -ErrorAction SilentlyContinue
+            Add-DnsServerConditionalForwarderZone -Name "moneycorp.local" -MasterServers 192.168.96.10
+            Write-Host "  moneycorp.local forwarder configured to 192.168.96.10" -ForegroundColor Green
+        } else {
+            Write-Host "  moneycorp.local forwarder already correct" -ForegroundColor Green
+        }
+    } elseif (-not $existingForwarder) {
+        Write-Host "  Adding moneycorp.local forwarder to 192.168.96.10" -ForegroundColor Yellow
+        Add-DnsServerConditionalForwarderZone -Name "moneycorp.local" -MasterServers 192.168.96.10
+        Write-Host "  moneycorp.local forwarder configured" -ForegroundColor Green
+    }
+    Write-Host ""
+}
+
+if ($hostname -eq "DCORP-DC") {
+    Write-Host "Configuring DNS forwarders for dcorp-dc..." -ForegroundColor Yellow
+
+    # Check if eurocorp.local forwarder exists
+    $existingForwarder = Get-DnsServerZone -Name "eurocorp.local" -ErrorAction SilentlyContinue
+
+    if ($existingForwarder) {
+        # Check if it has the correct IP
+        $masterServers = $existingForwarder.MasterServers
+        if ($masterServers -notcontains "192.168.96.100") {
+            Write-Host "  Fixing eurocorp.local forwarder (wrong IP: $masterServers)" -ForegroundColor Yellow
+            Remove-DnsServerZone -Name "eurocorp.local" -Force -ErrorAction SilentlyContinue
+            Add-DnsServerConditionalForwarderZone -Name "eurocorp.local" -MasterServers 192.168.96.100
+            Write-Host "  eurocorp.local forwarder configured to 192.168.96.100" -ForegroundColor Green
+        } else {
+            Write-Host "  eurocorp.local forwarder already correct" -ForegroundColor Green
+        }
+    } else {
+        Write-Host "  Adding eurocorp.local forwarder to 192.168.96.100" -ForegroundColor Yellow
+        Add-DnsServerConditionalForwarderZone -Name "eurocorp.local" -MasterServers 192.168.96.100
+        Write-Host "  eurocorp.local forwarder configured" -ForegroundColor Green
+    }
+    Write-Host ""
+}
+
 # Run tests
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "RUNNING VERIFICATION TESTS" -ForegroundColor Cyan

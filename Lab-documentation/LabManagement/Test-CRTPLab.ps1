@@ -46,24 +46,8 @@ foreach ($vm in $VMs) {
 }
 
 Write-Host ""
-Write-Host "[PHASE 2] Testing Network Connectivity (Ping)" -ForegroundColor Yellow
-Write-Host ""
-
-foreach ($vm in $VMs) {
-    $totalTests++
-    Write-Host "Testing $($vm.Name) ($($vm.IP))... " -NoNewline
-
-    if (Test-Connection -ComputerName $vm.IP -Count 2 -Quiet -ErrorAction SilentlyContinue) {
-        Write-Host "[PASS]" -ForegroundColor Green
-        $passedTests++
-    } else {
-        Write-Host "[FAIL]" -ForegroundColor Red
-        $failedTests++
-    }
-}
-
-Write-Host ""
-Write-Host "[PHASE 3] Testing Critical Ports" -ForegroundColor Yellow
+Write-Host "[PHASE 2] Testing Critical Services (Ports)" -ForegroundColor Yellow
+Write-Host "NOTE: Ping/ICMP is disabled on Windows VMs by default - this is normal" -ForegroundColor Gray
 Write-Host ""
 
 foreach ($vm in $VMs) {
@@ -86,7 +70,7 @@ foreach ($vm in $VMs) {
 }
 
 Write-Host ""
-Write-Host "[PHASE 4] Testing DNS Resolution" -ForegroundColor Yellow
+Write-Host "[PHASE 3] Testing DNS Resolution" -ForegroundColor Yellow
 Write-Host ""
 
 $dnsTests = @(
@@ -123,7 +107,7 @@ foreach ($test in $dnsTests) {
 }
 
 Write-Host ""
-Write-Host "[PHASE 5] Testing Forest Trust" -ForegroundColor Yellow
+Write-Host "[PHASE 4] Testing Forest Trust" -ForegroundColor Yellow
 Write-Host ""
 
 $totalTests++

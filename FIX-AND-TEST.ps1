@@ -127,8 +127,8 @@ if (Test-Connection -ComputerName 192.168.96.10 -Count 2 -Quiet) {
 }
 
 # Test 2: Ping ecorp-dc
-Write-Host "[2/9] Ping ecorp-dc (192.168.96.11)" -ForegroundColor White
-if (Test-Connection -ComputerName 192.168.96.11 -Count 2 -Quiet) {
+Write-Host "[2/9] Ping ecorp-dc (192.168.96.100)" -ForegroundColor White
+if (Test-Connection -ComputerName 192.168.96.100 -Count 2 -Quiet) {
     Write-Host "  PASS" -ForegroundColor Green
     $passed++
 } else {
@@ -137,8 +137,8 @@ if (Test-Connection -ComputerName 192.168.96.11 -Count 2 -Quiet) {
 }
 
 # Test 3: Ping dcorp-dc
-Write-Host "[3/9] Ping dcorp-dc (192.168.96.12)" -ForegroundColor White
-if (Test-Connection -ComputerName 192.168.96.12 -Count 2 -Quiet) {
+Write-Host "[3/9] Ping dcorp-dc (192.168.96.20)" -ForegroundColor White
+if (Test-Connection -ComputerName 192.168.96.20 -Count 2 -Quiet) {
     Write-Host "  PASS" -ForegroundColor Green
     $passed++
 } else {

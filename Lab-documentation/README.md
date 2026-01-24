@@ -1,6 +1,34 @@
 # CRTP Lab Documentation - Essential Scripts Only
 
-## Quick Start
+## IMPORTANT: First Time Setup
+
+**Before running tests from the host**, you need to configure Windows Firewall on each VM to allow host access.
+
+### One-Time Firewall Setup (Run on EACH VM)
+
+1. **RDP to each VM** (or use VirtualBox console)
+2. **Run this command inside each VM**:
+```powershell
+\\vboxsvr\e_drive\Lab-documentation\ENABLE-HOST-ACCESS.ps1
+```
+
+**Do this for all 10 VMs:**
+- mcorp-dc (192.168.96.10)
+- ecorp-dc (192.168.96.100)
+- dcorp-dc (192.168.96.20)
+- dcorp-adminsrv (192.168.96.21)
+- dcorp-appsrv (192.168.96.22)
+- dcorp-ci (192.168.96.23)
+- dcorp-mgmt (192.168.96.24)
+- dcorp-mssql (192.168.96.25)
+- dcorp-sql1 (192.168.96.26)
+- dcorp-stdadmin (192.168.96.50)
+
+This opens firewall ports so the host can run tests and connect to services.
+
+---
+
+## Quick Start (After Firewall Setup)
 
 ### 1. Start Lab
 ```powershell
@@ -27,6 +55,7 @@
 | Script | Purpose |
 |--------|---------|
 | **LAB-MANAGER.ps1** | Interactive menu launcher |
+| **ENABLE-HOST-ACCESS.ps1** | Enable firewall rules (run ONCE on each VM) |
 | **LabManagement/Start-CRTPLab.ps1** | Start all 10 VMs |
 | **LabManagement/Stop-CRTPLab.ps1** | Stop all 10 VMs |
 | **LabManagement/Test-CRTPLab.ps1** | Test connectivity & services |
@@ -86,6 +115,21 @@
 | dcorp-mssql | 192.168.96.25 | SQL | dollarcorp\Administrator : Psychi@Lab2024! |
 | dcorp-sql1 | 192.168.96.26 | SQL | dollarcorp\Administrator : Psychi@Lab2024! |
 | dcorp-stdadmin | 192.168.96.50 | Workstation | dollarcorp\student : Password123! |
+
+---
+
+## Troubleshooting
+
+### Tests failing with "connection refused"
+- Run `ENABLE-HOST-ACCESS.ps1` on each VM to open firewall ports
+
+### VMs not starting
+```powershell
+VBoxManage startvm <vm-name> --type gui
+```
+
+### DNS issues
+- RDP to each DC and run `FIX-AND-TEST.ps1`
 
 ---
 

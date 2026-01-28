@@ -1,6 +1,6 @@
 # ========================================
 # TEST CRTP LAB
-# Tests VM status and RDP access
+# Tests VM status
 # ========================================
 
 $ErrorActionPreference = "Continue"
@@ -28,7 +28,7 @@ $VMs = @(
 $totalTests = 0
 $passedTests = 0
 
-Write-Host "[1/2] Testing VM Status" -ForegroundColor Yellow
+Write-Host "Testing VM Status..." -ForegroundColor Yellow
 Write-Host ""
 
 foreach ($vm in $VMs) {
@@ -43,43 +43,27 @@ foreach ($vm in $VMs) {
     }
 }
 
-Write-Host ""
-Write-Host "[2/2] Testing RDP Access to Student Workstation" -ForegroundColor Yellow
-Write-Host ""
-
-$totalTests++
-Write-Host "Testing RDP to dcorp-stdadmin (192.168.96.50:3389)... " -NoNewline
-
-$rdpTest = Test-NetConnection -ComputerName 192.168.96.50 -Port 3389 -WarningAction SilentlyContinue -ErrorAction SilentlyContinue
-
-if ($rdpTest.TcpTestSucceeded) {
-    Write-Host "[PASS]" -ForegroundColor Green
-    $passedTests++
-} else {
-    Write-Host "[FAIL]" -ForegroundColor Red
-}
-
 # Summary
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "TEST RESULTS" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "Passed: $passedTests / $totalTests" -ForegroundColor $(if ($passedTests -eq $totalTests) { "Green" } else { "Yellow" })
+Write-Host "Running: $passedTests / $totalTests VMs" -ForegroundColor $(if ($passedTests -eq $totalTests) { "Green" } else { "Yellow" })
 Write-Host ""
 
 if ($passedTests -eq $totalTests) {
-    Write-Host "ALL TESTS PASSED - LAB IS READY!" -ForegroundColor Green
+    Write-Host "ALL VMs RUNNING - LAB IS READY!" -ForegroundColor Green
     Write-Host ""
     Write-Host "Access the lab:" -ForegroundColor Yellow
-    Write-Host "  1. RDP to dcorp-stdadmin (192.168.96.50)" -ForegroundColor White
-    Write-Host "  2. Login as dollarcorp\student : Password123!" -ForegroundColor White
-    Write-Host "  3. Run attacks from there" -ForegroundColor White
+    Write-Host "  1. Open VirtualBox GUI" -ForegroundColor White
+    Write-Host "  2. Double-click dcorp-stdadmin to open console" -ForegroundColor White
+    Write-Host "  3. Login as dollarcorp\student : Password123!" -ForegroundColor White
+    Write-Host "  4. Run attacks from inside the VM" -ForegroundColor White
 } else {
-    Write-Host "SOME TESTS FAILED" -ForegroundColor Yellow
+    Write-Host "SOME VMs NOT RUNNING" -ForegroundColor Yellow
     Write-Host ""
-    Write-Host "Troubleshooting:" -ForegroundColor Yellow
-    Write-Host "  - Start missing VMs: .\Start-CRTPLab.ps1" -ForegroundColor White
-    Write-Host "  - Check VirtualBox for errors" -ForegroundColor White
+    Write-Host "Fix:" -ForegroundColor Yellow
+    Write-Host "  .\Start-CRTPLab.ps1" -ForegroundColor White
 }
 Write-Host ""

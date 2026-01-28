@@ -1,11 +1,7 @@
 # ========================================
 # START CRTP LAB ENVIRONMENT
-# Starts all 10 VMs in the correct order
+# Starts all 10 VMs - dcorp-stdadmin with GUI
 # ========================================
-
-param(
-    [switch]$Headless  # Start VMs in headless mode (no GUI)
-)
 
 $ErrorActionPreference = "Continue"
 
@@ -32,10 +28,8 @@ $VMs = @(
     @{Name="dcorp-stdadmin"; IP="192.168.96.50"; Priority=2}
 )
 
-$startMode = if ($Headless) { "headless" } else { "gui" }
-
-# Start Domain Controllers first
-Write-Host "[PHASE 1] Starting Domain Controllers..." -ForegroundColor Yellow
+# Start Domain Controllers first (headless)
+Write-Host "[PHASE 1] Starting Domain Controllers (headless)..." -ForegroundColor Yellow
 Write-Host ""
 
 foreach ($vm in ($VMs | Where-Object {$_.Priority -eq 1})) {
@@ -46,7 +40,7 @@ foreach ($vm in ($VMs | Where-Object {$_.Priority -eq 1})) {
     if ($status -match 'VMState="running"') {
         Write-Host "  Already running" -ForegroundColor Green
     } else {
-        VBoxManage startvm $vm.Name --type $startMode 2>&1 | Out-Null
+        VBoxManage startvm $vm.Name --type headless 2>&1 | Out-Null
         if ($LASTEXITCODE -eq 0) {
             Write-Host "  Started successfully" -ForegroundColor Green
         } else {
@@ -72,9 +66,16 @@ foreach ($vm in ($VMs | Where-Object {$_.Priority -eq 2})) {
     if ($status -match 'VMState="running"') {
         Write-Host "  Already running" -ForegroundColor Green
     } else {
+        # dcorp-stdadmin always starts with GUI
+        $startMode = if ($vm.Name -eq "dcorp-stdadmin") { "gui" } else { "headless" }
+
         VBoxManage startvm $vm.Name --type $startMode 2>&1 | Out-Null
         if ($LASTEXITCODE -eq 0) {
-            Write-Host "  Started successfully" -ForegroundColor Green
+            if ($vm.Name -eq "dcorp-stdadmin") {
+                Write-Host "  Started with GUI - window will open" -ForegroundColor Green
+            } else {
+                Write-Host "  Started successfully" -ForegroundColor Green
+            }
         } else {
             Write-Host "  Failed to start" -ForegroundColor Red
         }
@@ -105,5 +106,7 @@ foreach ($vm in $VMs) {
 
 Write-Host ""
 Write-Host "CRTP Lab startup complete!" -ForegroundColor Green
-Write-Host "Run Test-CRTPLab.ps1 to verify connectivity" -ForegroundColor Yellow
+Write-Host ""
+Write-Host "dcorp-stdadmin GUI window is open." -ForegroundColor Yellow
+Write-Host "It will auto-login as dollarcorp\student : StudentPass123!" -ForegroundColor Yellow
 Write-Host ""

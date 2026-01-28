@@ -107,6 +107,33 @@ if ($currentIP -ne $expectedIP) {
     Write-Host ""
 }
 
+# Configure auto-logon for student workstation
+if ($hostname -eq "DCORP-STDADMIN") {
+    Write-Host "Configuring auto-logon for student account..." -ForegroundColor Yellow
+
+    $RegPath = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"
+
+    try {
+        Set-ItemProperty -Path $RegPath -Name "AutoAdminLogon" -Value "1" -Type String -ErrorAction Stop
+        Set-ItemProperty -Path $RegPath -Name "DefaultUserName" -Value "student" -Type String -ErrorAction Stop
+        Set-ItemProperty -Path $RegPath -Name "DefaultPassword" -Value "Password123!" -Type String -ErrorAction Stop
+        Set-ItemProperty -Path $RegPath -Name "DefaultDomainName" -Value "dollarcorp" -Type String -ErrorAction Stop
+
+        # Disable legal notice
+        $LegalNoticePath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System"
+        if (Test-Path $LegalNoticePath) {
+            Set-ItemProperty -Path $LegalNoticePath -Name "legalnoticecaption" -Value "" -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $LegalNoticePath -Name "legalnoticetext" -Value "" -ErrorAction SilentlyContinue
+        }
+
+        Write-Host "  Auto-logon configured for dollarcorp\student" -ForegroundColor Green
+        Write-Host "  Next boot will automatically log in" -ForegroundColor Green
+    } catch {
+        Write-Host "  Failed to configure auto-logon: $_" -ForegroundColor Red
+    }
+    Write-Host ""
+}
+
 # Configure DNS forwarders (critical for cross-forest queries)
 if ($hostname -eq "MCORP-DC") {
     Write-Host "Configuring DNS forwarders for mcorp-dc..." -ForegroundColor Yellow

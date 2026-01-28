@@ -20,7 +20,7 @@ $commands = @(
     "Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -name 'fDenyTSConnections' -Value 0",
     "Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon' -Name 'AutoAdminLogon' -Value '1' -Type String",
     "Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon' -Name 'DefaultUserName' -Value 'student' -Type String",
-    "Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon' -Name 'DefaultPassword' -Value 'Password123!' -Type String",
+    "Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon' -Name 'DefaultPassword' -Value 'StudentPass123!' -Type String",
     "Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon' -Name 'DefaultDomainName' -Value 'dollarcorp' -Type String"
 )
 
@@ -53,7 +53,7 @@ if ($rdpTest.TcpTestSucceeded) {
     Write-Host ""
     Write-Host "You can now RDP to 192.168.96.50" -ForegroundColor Green
     Write-Host "  Login: dollarcorp\student" -ForegroundColor White
-    Write-Host "  Password: Password123!" -ForegroundColor White
+    Write-Host "  Password: StudentPass123!" -ForegroundColor White
     Write-Host ""
     Write-Host "Or just reboot dcorp-stdadmin and it will auto-login" -ForegroundColor Yellow
 } else {

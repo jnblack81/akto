@@ -58,7 +58,7 @@ if ($passedTests -eq $totalTests) {
     Write-Host "Access the lab:" -ForegroundColor Yellow
     Write-Host "  1. Open VirtualBox GUI" -ForegroundColor White
     Write-Host "  2. Double-click dcorp-stdadmin to open console" -ForegroundColor White
-    Write-Host "  3. Login as dollarcorp\student : Password123!" -ForegroundColor White
+    Write-Host "  3. Login as dollarcorp\student : StudentPass123!" -ForegroundColor White
     Write-Host "  4. Run attacks from inside the VM" -ForegroundColor White
 } else {
     Write-Host "SOME VMs NOT RUNNING" -ForegroundColor Yellow

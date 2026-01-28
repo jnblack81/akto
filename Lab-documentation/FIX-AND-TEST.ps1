@@ -116,7 +116,7 @@ if ($hostname -eq "DCORP-STDADMIN") {
     try {
         Set-ItemProperty -Path $RegPath -Name "AutoAdminLogon" -Value "1" -Type String -ErrorAction Stop
         Set-ItemProperty -Path $RegPath -Name "DefaultUserName" -Value "student" -Type String -ErrorAction Stop
-        Set-ItemProperty -Path $RegPath -Name "DefaultPassword" -Value "Password123!" -Type String -ErrorAction Stop
+        Set-ItemProperty -Path $RegPath -Name "DefaultPassword" -Value "StudentPass123!" -Type String -ErrorAction Stop
         Set-ItemProperty -Path $RegPath -Name "DefaultDomainName" -Value "dollarcorp" -Type String -ErrorAction Stop
 
         # Disable legal notice

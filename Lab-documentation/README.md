@@ -114,7 +114,7 @@ This opens firewall ports so the host can run tests and connect to services.
 | dcorp-mgmt | 192.168.96.24 | Server | dollarcorp\Administrator : Psychi@Lab2024! |
 | dcorp-mssql | 192.168.96.25 | SQL | dollarcorp\Administrator : Psychi@Lab2024! |
 | dcorp-sql1 | 192.168.96.26 | SQL | dollarcorp\Administrator : Psychi@Lab2024! |
-| dcorp-stdadmin | 192.168.96.50 | Workstation | dollarcorp\student : Password123! |
+| dcorp-stdadmin | 192.168.96.50 | Workstation | dollarcorp\student : StudentPass123! |
 
 ---
 

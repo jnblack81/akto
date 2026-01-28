@@ -14,7 +14,7 @@ Write-Host ""
 # Auto-logon credentials
 $domain = "dollarcorp"
 $username = "student"
-$password = "Password123!"
+$password = "StudentPass123!"
 
 Write-Host "Configuring auto-logon for: $domain\$username" -ForegroundColor Yellow
 Write-Host ""

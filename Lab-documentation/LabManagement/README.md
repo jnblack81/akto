@@ -235,7 +235,7 @@ These scripts automate the management of all 10 VMs in the CRTP lab:
 - **dcorp.moneycorp.local**: `dollarcorp\Administrator` / `Psychi@Lab2024!`
 
 ### Student Account
-- **dcorp-stdadmin**: `dollarcorp\student` / `Password123!`
+- **dcorp-stdadmin**: `dollarcorp\student` / `StudentPass123!`
 
 ---
 

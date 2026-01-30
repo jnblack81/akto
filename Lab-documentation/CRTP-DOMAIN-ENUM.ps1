@@ -395,7 +395,7 @@ if (Get-Command Get-DomainComputer -ErrorAction SilentlyContinue) {
     $constrainedComps = Get-DomainComputer -TrustedToAuth
     foreach ($comp in $constrainedComps) {
         Write-Output-Both "    [!] $($comp.dnshostname)" "Yellow"
-        Write-Output-Both "        Allowed to: $($comp.msds-allowedtodelegateto)" "Yellow"
+        Write-Output-Both "        Allowed to: $($comp.'msds-allowedtodelegateto')" "Yellow"
     }
 
     $constrainedUsers = Get-DomainUser -TrustedToAuth
